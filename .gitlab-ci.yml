@@ -1,0 +1,27 @@
+image: docker:latest
+stages:
+- build
+
+before_script:
+- apk update && apk add --no-cache git
+
+build:
+  image: docker:dind
+  stage: build
+  tags: ["dev","prod","sandbox","test","staging"]
+  services:
+  - docker:dind
+  script:
+  - git submodule update --init
+  - version=$(cat version)
+  - echo $version
+  - docker info
+  - docker login -u $ci_account -p $ci_token $REGISTRY_HOST
+  - docker build -t $CI_REGISTRY_IMAGE .
+  - docker tag $CI_REGISTRY_IMAGE $CI_REGISTRY_IMAGE:$version
+  - docker tag $CI_REGISTRY_IMAGE $CI_REGISTRY_IMAGE:latest
+  - docker push $CI_REGISTRY_IMAGE:$version
+  - docker push $CI_REGISTRY_IMAGE:latest
+  variables:
+    privileged: "true"
+    DOCKER_HOST: tcp://localhost:2375
