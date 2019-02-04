@@ -49,8 +49,6 @@ spec:
           labels:
             app: vault-dead-lease-remover
         spec:
-          imagePullSecrets:
-          - name: lalamove-gitlab
           containers:
           - name: dead-lease-remover
             image: alantang888/vault_dead_lease_remover:0.2
